@@ -46,11 +46,11 @@ func BuildDesignDocument(name, path string) error {
 		return errors.New("Do not begin design document name with _design")
 	}
 
-	ddocID := "_design/" + name
-	ddoc := &DesignDoc{ID: ddocID}
+	//ddocID := "_design/" + name
+	//ddoc := &DesignDoc{ID: ddocID}
 
 	// Glob files
-	mapFiles = filepath.Join(path, "views/*/", "map.js")
+	mapFiles := filepath.Join(path, "views/*/", "map.js")
 
 	matches, err := filepath.Glob(mapFiles)
 	if err != nil {
@@ -91,11 +91,9 @@ func BuildDesignDocument(name, path string) error {
 	// print results
 	t.Execute(os.Stdout, views)
 
-	// print results
-
-	ok, err := db.PostDocument(ddoc)
+	return nil
 }
 
 func main() {
-	err := BuildDesignDocument("design", "couchdb")
+	_ = BuildDesignDocument("design", "couchdb")
 }
