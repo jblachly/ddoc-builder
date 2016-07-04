@@ -42,7 +42,7 @@ func BuildDesignDocument(name, path string) error {
 
 	if strings.ContainsRune(name, '/') {
 		return errors.New("Do not include / in design document name")
-	} else if name[0:7] == "_design" {
+	} else if strings.Contains(name, "_design") {
 		return errors.New("Do not begin design document name with _design")
 	}
 
