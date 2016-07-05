@@ -42,12 +42,13 @@ func BuildDesignDocument(name, path string) error {
 
 	if strings.ContainsRune(name, '/') {
 		return errors.New("Do not include / in design document name")
-	} else if name[0:7] == "_design" {
+	} else if strings.Contains(name, "_design") {
 		return errors.New("Do not begin design document name with _design")
 	}
 
-	//ddocID := "_design/" + name
+	ddocID := "_design/" + name
 	//ddoc := &DesignDoc{ID: ddocID}
+	_ = &DesignDoc{ID: ddocID}
 
 	// Glob files
 	mapFiles := filepath.Join(path, "views/*/", "map.js")
@@ -73,9 +74,12 @@ func BuildDesignDocument(name, path string) error {
 		if err != nil {
 			return err
 		}
-		// TODO: replace \n
 
-		v.MapFunction = string(filebuf)
+		mapFunc := string(filebuf)
+		mapFunc = strings.Replace(mapFunc, "\n", "\\n", -1) // replace newline with literal \n
+		mapFunc = strings.Replace(mapFunc, "\r", "", -1)    // replace carriage ret with nothing
+
+		v.MapFunction = string(mapFunc)
 		v.ReduceFunction = "_sum"
 
 		// Append to 'views' slice
