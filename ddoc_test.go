@@ -6,11 +6,11 @@ import (
 )
 
 func TestBuild(t *testing.T) {
-	s, err := Build("design", "couchdb")
+	b, err := Build("design", "couchdb")
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Println(s)
+	fmt.Println(string(b))
 
 }

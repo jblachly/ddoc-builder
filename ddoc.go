@@ -40,19 +40,19 @@ var views []View
 //
 // From these, it composes a CouchDB design document having the map and reduce
 // functions as named views
-func Build(name, path string) (string, error) {
+func Build(name, path string) ([]byte, error) {
 
 	// Error checking
 	if strings.ContainsRune(name, '/') {
-		return "", errors.New("Do not include / in design document name")
+		return nil, errors.New("Do not include / in design document name")
 	} else if strings.Contains(name, "_design") {
-		return "", errors.New("Do not begin design document name with _design")
+		return nil, errors.New("Do not begin design document name with _design")
 	}
 
 	ddocTemplate := filepath.Join(path, "ddoc.tmpl")
 	if _, err := os.Stat(ddocTemplate); os.IsNotExist(err) {
 		// path/ddoc.tmpl does not exist
-		return "", err
+		return nil, err
 	}
 
 	ddocID := "_design/" + name
@@ -81,7 +81,7 @@ func Build(name, path string) (string, error) {
 		// read map.js
 		filebuf, err := ioutil.ReadFile(matches[i])
 		if err != nil {
-			return "", err
+			return nil, err
 		}
 
 		mapFunc := string(filebuf)
@@ -105,5 +105,5 @@ func Build(name, path string) (string, error) {
 	b := bytes.NewBuffer(buf)
 	t.Execute(b, views)
 
-	return b.String(), nil
+	return b.Bytes(), nil
 }
