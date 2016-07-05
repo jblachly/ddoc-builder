@@ -74,9 +74,12 @@ func BuildDesignDocument(name, path string) error {
 		if err != nil {
 			return err
 		}
-		// TODO: replace \n
 
-		v.MapFunction = string(filebuf)
+		mapFunc := string(filebuf)
+		mapFunc = strings.Replace(mapFunc, "\n", "\\n", -1) // replace newline with literal \n
+		mapFunc = strings.Replace(mapFunc, "\r", "", -1)    // replace carriage ret with nothing
+
+		v.MapFunction = string(mapFunc)
 		v.ReduceFunction = "_sum"
 
 		// Append to 'views' slice
