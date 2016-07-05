@@ -1,6 +1,7 @@
-package main
+package ddoc
 
 import (
+	"bytes"
 	"errors"
 	"io/ioutil"
 	"log"
@@ -27,6 +28,7 @@ type View struct {
 	ReduceFunction string
 }
 
+// views is passed to the template
 var views []View
 
 // BuildDesignDocument takes a design document name (do not include _design/)
@@ -38,12 +40,19 @@ var views []View
 //
 // From these, it composes a CouchDB design document having the map and reduce
 // functions as named views
-func BuildDesignDocument(name, path string) error {
+func Build(name, path string) (string, error) {
 
+	// Error checking
 	if strings.ContainsRune(name, '/') {
-		return errors.New("Do not include / in design document name")
+		return "", errors.New("Do not include / in design document name")
 	} else if strings.Contains(name, "_design") {
-		return errors.New("Do not begin design document name with _design")
+		return "", errors.New("Do not begin design document name with _design")
+	}
+
+	ddocTemplate := filepath.Join(path, "ddoc.tmpl")
+	if _, err := os.Stat(ddocTemplate); os.IsNotExist(err) {
+		// path/ddoc.tmpl does not exist
+		return "", err
 	}
 
 	ddocID := "_design/" + name
@@ -72,7 +81,7 @@ func BuildDesignDocument(name, path string) error {
 		// read map.js
 		filebuf, err := ioutil.ReadFile(matches[i])
 		if err != nil {
-			return err
+			return "", err
 		}
 
 		mapFunc := string(filebuf)
@@ -87,17 +96,14 @@ func BuildDesignDocument(name, path string) error {
 	}
 
 	// Fill template
-	// TODO use passed path
-	t, err := template.ParseFiles("couchdb/ddoc.tmpl")
+	t, err := template.ParseFiles(ddocTemplate)
 	if err != nil {
 		log.Fatalln(err)
 	}
 	// print results
-	t.Execute(os.Stdout, views)
+	buf := make([]byte, 0, 8192) // byte slice with capacity of 8k
+	b := bytes.NewBuffer(buf)
+	t.Execute(b, views)
 
-	return nil
-}
-
-func main() {
-	_ = BuildDesignDocument("design", "couchdb")
+	return b.String(), nil
 }
