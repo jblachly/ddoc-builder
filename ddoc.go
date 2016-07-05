@@ -85,8 +85,10 @@ func Build(name, path string) ([]byte, error) {
 		}
 
 		mapFunc := string(filebuf)
-		mapFunc = strings.Replace(mapFunc, "\n", "\\n", -1) // replace newline with literal \n
-		mapFunc = strings.Replace(mapFunc, "\r", "", -1)    // replace carriage ret with nothing
+		mapFunc = strings.Replace(mapFunc, "\n", "\\n", -1)  // replace newline with literal \n
+		mapFunc = strings.Replace(mapFunc, "\r", "", -1)     // replace carriage ret with nothing
+		mapFunc = strings.Replace(mapFunc, "\t", "    ", -1) // JSON spec says no control characters
+		// and in fact json.Unmarshal will barf on tab
 
 		v.MapFunction = string(mapFunc)
 		v.ReduceFunction = "_sum"
