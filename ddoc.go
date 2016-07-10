@@ -91,7 +91,7 @@ func Build(name, path string) ([]byte, error) {
 		// and in fact json.Unmarshal will barf on tab
 
 		v.MapFunction = string(mapFunc)
-		//v.ReduceFunction = "_sum"
+		v.ReduceFunction = "_count"
 
 		// Append to 'views' slice
 		views = append(views, v)
